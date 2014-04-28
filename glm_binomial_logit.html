@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>ロジスティック回帰(GLM,二項分布,ロジットリンク関数)メモ</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</head>
+
+<body>
+<h1>ロジスティック回帰(GLM,二項分布,ロジットリンク関数)メモ</h1>
+
+<h2>GLM(一般化線形モデル)</h2>
+
+<ul>
+<li>重要な3要素
+
+<ul>
+<li>確率分布</li>
+<li>リンク関数(連結関数)</li>
+<li>線形予測子</li>
+</ul></li>
+</ul>
+
+<h2>二項分布,ロジットリンク関数の場合</h2>
+
+<ul>
+<li>二項分布
+
+<ul>
+<li>\( p(y|θ) = p(y|N,q) = {N \choose y} q^y (1-q)^{N-y}  \)</li>
+</ul></li>
+<li>生起確率 q ロジット関数。ロジスティック回帰でのリンク関数がこれにあたる。
+
+<ul>
+<li>\( q = 1/(1 + exp(-η))  \)</li>
+</ul></li>
+<li>線形予測子 η
+
+<ul>
+<li>\( η = β_0 + β_1 x_1 + β_2 x_2 + ... + β_n x_n  \)</li>
+</ul></li>
+<li>尤度関数 L
+
+<ul>
+<li>\( L(θ|y) = Σ p(y|N,q)  \)</li>
+</ul></li>
+<li><p>最尤法によるパラメータ推定</p>
+
+<ul>
+<li>\( L(θ|y)  \) が最大になるθ(ロジスティック回帰ではβ)の値を求めること。
+対数にして乗算を加算に変換して計算する。(最大対数尤度)</li>
+</ul></li>
+<li><p>オッズ値,オッズ比からロジット関数への式展開
+\[  
+\begin{aligned}
+  odds = p(x)/(1-p(x)) \\
+  log(odds) = η  \\
+  odds = exp(η) \\
+  p/(1-p) = exp(η) \\
+  p = (1-p) * exp(η) \\
+  p = exp(η) - p * exp(η) \\
+  (1 + exp(η) ) * p = exp(η) \\
+  p = exp(η)/( 1 + exp(η) ) \\
+  p = 1/( exp(-η) + 1) 
+\end{aligned}
+ \]</p>
+
+<ul>
+<li>式展開 参考 <a href="http://www.slideshare.net/sleipnir002/05-12739580">http://www.slideshare.net/sleipnir002/05-12739580</a></li>
+</ul></li>
+<li><p>glm パラメタ</p>
+
+<ul>
+<li>η(読み：イータ)：線形予測子を意味する
+
+<ul>
+<li>例) η = β0 + β1*x1 + β2*x2 + &hellip; + + βn*xn</li>
+</ul></li>
+<li>θ(読み：シータ)：パラメータ。
+
+<ul>
+<li>ロジスティック回帰の場合 \( p(y|θ) = p(y|N,q) = p(y|β)  \)</li>
+<li>ポアソン回帰の場合 \( p(y|θ) = p(y|λ)  \)</li>
+<li>最尤推定や最小二乗法などの最適化手法により求めるパラメータ。</li>
+<li>一般化線形モデルのパラメータ &ndash;&gt; θ</li>
+<li>ロジスティック回帰 &ndash;&gt; N,q</li>
+<li>ポアソン回帰 &ndash;&gt; λ(ラムダ) 平均値</li>
+</ul></li>
+</ul></li>
+</ul>
+
+</body>
+
+</html>
+
