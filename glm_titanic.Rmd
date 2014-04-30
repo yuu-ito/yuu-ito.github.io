@@ -1,0 +1,32 @@
+kaggle titanic データで GLM(ロジスティック回帰)
+========================================================
+
+- kaggle titanic 
+    - https://www.kaggle.com/c/titanic-gettingStarted/data
+
+```{r}
+t <- read.csv("../../Downloads/train.csv")
+names(t)<-tolower(names(t))
+t<-t[!is.na(t$age),] # age NA 除く
+
+idx<- sample(nrow(t),(nrow(t)*0.7))
+t.tr <- t[ idx,]
+t.te <- t[-idx,]
+
+summary(t.tr)
+summary(t.te)
+
+table(t.tr$survived)/nrow(t.tr)
+table(t.te$survived)/nrow(t.te)
+
+g <- glm(data=t.tr, survived~pclass+sex+age+sibsp+parch,family=binomial(logit))
+summary(g)
+
+p <- predict(g,t.te, type="response")
+t.pred <- data.frame(t.te, p)
+summary(t.pred$p)
+t.pred$p_factor <- cut(t.pred$p,breaks=c(0,0.5,1))
+table(t.pred$survived,t.pred$p_factor)
+sum(diag(table(t.pred$p_factor,t.pred$survived)))/nrow(t.pred)
+```
+
