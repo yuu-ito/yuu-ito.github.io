@@ -1,0 +1,128 @@
+R言語データ型についての補足
+========================================================
+author: yuu-ito
+date: 2014/05/30
+
+Rのデータ型
+========================================================
+
+- numerical(実数)
+- character(文字)
+- * vector(ベクトル)
+- * matrix(マトリクス)
+- * data frame(データフレーム)
+- * list(リスト)
+- * factor(因子)
+- etc...
+
+型変換と
+*についての補足を書いておきます。
+
+データ型の確認
+========================================================
+
+- mode,class,is.XXX 関数を使う
+```{r}
+x<-"hoge"
+mode(x)
+y<-seq(from=1,to=10,by=1)
+class(y)
+is.numeric(y)
+```
+
+データ型の変換 as.XXX
+========================================================
+```{r}
+(x <- c("3.14", "2.72", "0.082"))
+mode(x)
+(y <- as.numeric(x))
+mode(y)
+```
+
+vector(ベクトル)
+========================================================
+
+- 1次元(1行または1列)のデータセット
+
+```{r}
+price <- c(105,202,155,91) # price object に vector dataを代入
+productname <- c("A", "B", "C", "D") # productname object に vector dataを代入
+names(price)<- productname # price のラベルを productnameにする 
+price # price　を出力
+```
+
+matrix(マトリクス)
+========================================================
+- 表・行列の表現として、R言語には matrix(マトリクス) と
+data.frame(データフレーム)が用意されている。
+- 対象が全て数値で数値演算を扱う場合には matrix を用いる
+```{r}
+price <- matrix(0,2,4) # 要素が 0 の 2行4列の行列を定義する
+productname <- c("A", "B", "C", "D")
+cityname <- c("Tokyo","London")
+colnames(price)<- productname # price のラベル
+rownames(price)<- cityname # price のラベル
+price[1,] <- c(105,202,155,91) # 1 行目
+price[2,] <- c(107,199,154,99) # 2 行目
+price # 行列 price を表示
+```
+
+data frame(データフレーム)
+========================================================
+- 数字と文字列が混在しているときにはデータフレームを使う
+- data.frame関数を用いて作成
+- data Frame から matrix : as.matrix()
+- matrix から data frame : as.data.frame()
+
+```{r}
+df <- data.frame(cbind(LETTERS[1:4], 3:0))
+colnames(df) <- c("Team","Score")
+df # 出力
+```
+
+list(リスト)
+========================================================
+- 異なる型のデータをひとつのオブジェクトとして扱うとき
+  - ex.)関数の返り値など
+```{r,tidy=F}
+l <- list(c(1:8),
+          c("A","B"),
+          matrix(1:10,2,5))
+l # 出力
+```
+
+factor(因子) #1
+========================================================
+- カテゴリデータを扱うときに利用
+- 順序をもつ文字列ベクトル
+```{r}
+(ff <- factor(substring("statistics",1:10,1:10), levels=letters)) # 水準集合を指定
+```
+
+factor(因子) #2.1
+========================================================
+```{r}
+(days <- seq(Sys.Date(), len=7, by="1 day"))
+(wd <- weekdays(days))
+class(wd)
+```
+factor(因子) #2.2
+========================================================
+```{r}
+(days.df <-data.frame(days,wd))
+class(days.df$wd) # data frame内の文字列ベクトルは原則factor型
+days.df$wd
+```
+
+factor(因子) #2.3
+========================================================
+```{r}
+levels(days.df$wd) <-
+  c("日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日")# 水準集合
+days.df$wd # 水準属性の変更
+```
+
+参考
+========================================================
+- http://www.okada.jp.org/RWiki/?%B0%F8%BB%D2Tips%C2%E7%C1%B4
+- http://d.hatena.ne.jp/hamadakoichi/20100118/1263832446
