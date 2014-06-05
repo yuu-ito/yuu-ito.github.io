@@ -1,0 +1,195 @@
+R plot tutorial
+========================================================
+author: yuu-ito
+date: 2014/06/19
+
+ggplot2 パッケージを使います
+========================================================
+
+- Rのグラフ描画用パッケージ
+ - デフォルトのplot関数よりシンプルに書けて、きれいな描画
+ - 細かい描画設定を作りこむこともできる
+ - デメリット
+      - 扱うデータはdata.frameのみ
+      - 3次元空間の描画はできない
+      - グラフ理論系のグラフはできない（ネットワークグラフなど）
+
+標準のplot関数でのコード例
+========================================================
+
+```{r,eval=F,tidy=F,cache=T}
+# ?mtcars
+plot(mpg~hp,data=subset(mtcars,am==1))
+points(mpg~hp,data=subset(mtcars,am==0),col="red")
+legend("topright",c("1","0"),
+       title="am",col=c("black","red"),pch=c(1,1))
+```
+
+標準のplot関数でのコード例
+========================================================
+
+```{r,echo=F}
+# ?mtcars
+library("ggplot2")
+plot(mpg~hp,data=subset(mtcars,am==1))
+points(mpg~hp,data=subset(mtcars,am==0),col="red")
+legend("topright",c("1","0"),title="am",col=c("black","red"),pch=c(1,1))
+```
+
+ggplot2でのコード例
+========================================================
+
+```{r,eval=F,tidy=F}
+require("ggplot2")
+qplot(x=mpg,y=hp,data=mtcars,col=factor(am))
+```
+
+ggplot2でのコード例
+========================================================
+
+```{r,echo=F}
+require("ggplot2")
+qplot(x=mpg,y=hp,data=mtcars,col=factor(am))
+```
+
+データセット：mtcars
+========================================================
+- モータートレンド 自動車走行試験のデータ
+- 11項目32車種
+- 詳しくは help(mtcars)
+
+```
+[, 1] mpg	 Miles/(US) gallon
+[, 2] cyl	 Number of cylinders
+[, 3] disp	 Displacement (cu.in.)
+[, 4] hp	 Gross horsepower
+[, 5] drat	 Rear axle ratio
+[, 6] wt	 Weight (lb/1000)
+[, 7] qsec	 1/4 mile time
+[, 8] vs	 V/S
+[, 9] am	 Transmission (0 = automatic, 1 = manual)
+[,10] gear	 Number of forward gears
+[,11] carb	 Number of carburetors
+```
+
+散布図でデータの相関をみる
+========================================================
+```{r}
+pairs(mtcars[,c(1:4)])
+```
+- 2つの変数の特徴をつかむ
+- displacement:排気量, hoursepower:馬力,mpg:燃費
+
+度数分布図(histogram)
+========================================================
+```{r}
+qplot(data=mtcars,x=mpg,binwidth=3)
+```
+- データの分布状況を視覚的に確認する
+
+箱ひげ図(boxplot)
+========================================================
+```{r}
+qplot(data=mtcars,x=factor(cyl),y=mpg,
+       geom="boxplot",col=factor(cyl))
+```
+- データのばらつき具合を確認する
+- [箱ひげ図 wikipedia](http://ja.wikipedia.org/wiki/%E7%AE%B1%E3%81%B2%E3%81%92%E5%9B%B3)
+
+データセット：AirPassengers
+========================================================
+- 毎月の航空旅客数 1949年-1960 年
+- 詳しくは help(AirPassengers)
+
+```{r}
+a <- as.data.frame(as.matrix(AirPassengers))
+a$ymd <- 
+  seq(from=as.Date("1949-01-01"),
+      to=as.Date("1960-12-01"),
+      by="1 month")
+names(a)<-c("passengers","ymd")
+head(a)
+```
+
+線グラフで時系列で確認する
+========================================================
+```{r}
+qplot(data=a,x=ymd,y=passengers,geom="line")
+```
+
+余談:時系列データ分析
+========================================================
+```{r}
+plot(decompose(AirPassengers))
+```
+
+
+データセット:Titanic
+========================================================
+- タイタニック号の乗客の生存データ
+- 詳しくは help(Titanic)
+
+```
+No   Name   Levels
+1	 Class	 1st, 2nd, 3rd, Crew #経済的地位
+2	 Sex	 Male, Female
+3	 Age	 Child, Adult
+4	 Survived	 No, Yes #生存の有無
+```
+```{r cache=T}
+t <- as.data.frame(Titanic)
+head(t)
+```
+
+棒グラフで値の比較を行なう
+========================================================
+```{r}
+qplot(data=t,x=Age,weight=Freq,fill=Survived,
+   geom="bar")
+```
+棒グラフで値の比較を行なう
+========================================================
+```{r}
+qplot(data=t,x=Class,
+  weight=Freq,fill=Survived)+geom_bar()
+```
+
+複数の軸で
+========================================================
+```{r}
+qplot(data=t,x=Class,
+  weight=Freq,fill=Survived)+geom_bar()+
+  facet_grid(Age~Sex)
+```
+
+スケールの調整
+========================================================
+```{r}
+qplot(data=t,x=Class,
+  weight=Freq,fill=Survived)+geom_bar()+
+  facet_grid(Age~Sex,scale="free_y")
+```
+
+ggplot2 参考
+========================================================
+- [本家] http://docs.ggplot2.org/current/
+- [Introduction to R Graphics with ggplot2] http://www.slideshare.net/izahn/rgraphics-12040991
+- [ggplot2 Quick Reference: geom] http://sape.inf.usi.ch/quick-reference/ggplot2/geom
+
+reshape2 参考
+========================================================
+- [reshape2 — 柔軟なデータ変形ツール] http://meme.biology.tohoku.ac.jp/students/iwasaki/rstats/reshape2.html
+
+R データセット参考
+========================================================
+- [R言語 サンプルデータ一覧] http://www.trifields.jp/r-sample-data-491
+
+課題
+========================================================
+- PureData からデータを読み込み、グラフを作成してください。
+- 説明、ディスカッションしてください。(10min発表+5min説明)
+  - 2人 x 4チーム
+  - 説明してほしいこと
+      - データの何を見たいのか（分析目的、意図）
+      - 選択したグラフとその理由
+  
